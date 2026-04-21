@@ -1,0 +1,11 @@
+using UnityEngine;
+
+public class CashOutButton : MonoBehaviour
+{
+    public CrashGameController game;
+
+    public void OnCashOutPressed()
+    {
+        game.CashOut();
+    }
+}
