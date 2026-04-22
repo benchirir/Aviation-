@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sky Multiplier</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 10px;
+      font-size: 48px;
+    }
+
+    canvas {
+      background: #020617;
+      display: block;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+
+    .controls {
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    #start {
+      background: #22c55e;
+      color: white;
+    }
+
+    #cashout {
+      background: #facc15;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1 id="multiplier">x1.00</h1>
+
+<canvas id="gameCanvas" width="420" height="300"></canvas>
+
+<div class="controls">
+  <button id="start">START</button>
+  <button id="cashout">CASH OUT</button>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let multiplier = 1;
+let running = false;
+let crashPoint = 0;
+let cashedOut = false;
+let progress = 0;
+
+document.getElementById("start").onclick = startGame;
+document.getElementById("cashout").onclick = cashOut;
+
+function startGame() {
+  multiplier = 1;
+  running = true;
+  cashedOut = false;
+  crashPoint = Math.random() * 6 + 1.5;
+  progress = 0;
+
+  animate();
+}
+
+function cashOut() {
+  if (!running || cashedOut) return;
+
+  cashedOut = true;
+  running = false;
+
+  alert("✅ Cashed out at x" + multiplier.toFixed(2));
+}
+
+function animate() {
+  if (!running) return;
+
+  multiplier += 0.03;
+  progress += 0.01;
+
+  document.getElementById("multiplier").innerText =
+    "x" + multiplier.toFixed(2);
+
+  drawCurve(progress);
+
+  if (multiplier >= crashPoint) {
+    crash();
+    return;
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function drawCurve(p) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw curve
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height);
+
+  for (let i = 0; i <= p; i += 0.01) {
+    let x = i * canvas.width;
+    let y = canvas.height - (Math.pow(i, 2) * canvas.height);
+    ctx.lineTo(x, y);
+  }
+
+  ctx.strokeStyle = "#22c55e";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Plane (simple circle for now)
+  let px = p * canvas.width;
+  let py = canvas.height - (Math.pow(p, 2) * canvas.height);
+
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(px, py, 6, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function crash() {
+  running = false;
+
+  ctx.strokeStyle = "red";
+  ctx.stroke();
+
+  if (!cashedOut) {
+    alert("💥 CRASHED at x" + multiplier.toFixed(2));
+  }
+}
+</script>
+
+</body>
+</html>
